@@ -13,15 +13,16 @@ A comprehensive cross-browser web scraper that extracts articles from El País O
 
 ## Requirements
 
-- Python 3.8 or higher
+- Python 3.8 or higher (recommended 3.11+)
 - Chrome, Firefox, or Edge browser installed
 - Internet connection
 
 ## Installation
 
-1. **Clone or navigate to the project directory**:
+1. **Clone the project and navigate to it**:
    ```bash
-   cd c:\Users\passi\OneDrive\Desktop\Projects\Personal\Job_application_assignments\elpais_scraper
+   git clone https://github.com/Shashwat-Akhilesh-Shukla/elpais_scraper
+   cd elpais_scraper
    ```
 
 2. **Create a virtual environment** (recommended):
