@@ -13,7 +13,7 @@ A comprehensive cross-browser web scraper that extracts articles from El País O
 
 ## Requirements
 
-- Python 3.8 or higher (recommended 3.11+)
+- Python 3.11 (tested). Python 3.8+ should work.
 - Chrome, Firefox, or Edge browser installed
 - Internet connection
 
@@ -187,7 +187,8 @@ If images don't download:
 
 ## License
 
-This project is for educational purposes only.
+This scraper is intended for educational and demonstrational purposes only.
+It does not bypass paywalls and does not store or redistribute full articles.
 
 ## Author
 
