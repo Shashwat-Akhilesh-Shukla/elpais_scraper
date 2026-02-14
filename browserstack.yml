@@ -1,0 +1,44 @@
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+projectName: BrowserStack Assignment
+buildName: El Pais Selenium Build - Parallel Execution
+buildIdentifier: ${BUILD_NUMBER}
+
+framework: pytest
+platforms:
+  - os: Windows
+    osVersion: "11"
+    browserName: Chrome
+    browserVersion: latest
+    sessionName: "Desktop - Windows 11 Chrome"
+    
+  - os: OS X
+    osVersion: Ventura
+    browserName: Safari
+    browserVersion: latest
+    sessionName: "Desktop - macOS Ventura Safari"
+    
+  - os: Windows
+    osVersion: "10"
+    browserName: Edge
+    browserVersion: latest
+    sessionName: "Desktop - Windows 10 Edge"
+    
+  - deviceName: iPhone 14
+    osVersion: "16"
+    browserName: Safari
+    sessionName: "Mobile - iPhone 14 Safari"
+    
+  - deviceName: Samsung Galaxy S23
+    osVersion: "13.0"
+    browserName: Chrome
+    sessionName: "Mobile - Samsung Galaxy S23 Chrome"
+
+parallelsPerPlatform: 1
+maxDuration: 3600
+
+browserstackLocal: false
+debug: true
+networkLogs: true
+consoleLogs: errors

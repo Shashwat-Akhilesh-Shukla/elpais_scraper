@@ -1,6 +1,7 @@
 """
 Web scraper for El País Opinion section using Selenium.
 """
+import os
 import time
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
@@ -24,13 +25,17 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 import config
 from src.utils import log_info, log_error, log_debug, download_image, sanitize_filename
 
+# BrowserStack credentials
+USERNAME = os.getenv("BROWSERSTACK_USERNAME")
+ACCESS_KEY = os.getenv("BROWSERSTACK_ACCESS_KEY")
+
 
 class ElPaisScraper:
     """
     Web scraper for El País Opinion section.
     """
     
-    def __init__(self, browser: str = "chrome", headless: bool = False, mobile: bool = False):
+    def __init__(self, browser: str = "chrome", headless: bool = False, mobile: bool = False, driver=None):
         """
         Initialize the scraper.
         
@@ -38,27 +43,40 @@ class ElPaisScraper:
             browser: Browser to use ('chrome', 'firefox', 'edge')
             headless: Run in headless mode
             mobile: Emulate mobile device
+            driver: Optional external WebDriver instance (for BrowserStack SDK)
         """
         self.browser_name = browser.lower()
         self.headless = headless
         self.mobile = mobile
-        self.driver = None
+        self.driver = driver  # Use external driver if provided
         self.articles_data = []
         
-        log_info(f"Initializing scraper with browser: {browser}, headless: {headless}, mobile: {mobile}")
-        self._initialize_driver()
+        if self.driver is None:
+            # Only initialize driver if not provided externally
+            log_info(f"Initializing scraper with browser: {browser}, headless: {headless}, mobile: {mobile}")
+            self._initialize_driver()
+        else:
+            # Using external driver (e.g., from BrowserStack SDK)
+            log_info("Using external WebDriver instance (BrowserStack SDK)")
+
     
     def _initialize_driver(self) -> None:
         """Initialize the Selenium WebDriver based on browser choice."""
         try:
-            if self.browser_name == "chrome":
-                self.driver = self._create_chrome_driver()
-            elif self.browser_name == "firefox":
-                self.driver = self._create_firefox_driver()
-            elif self.browser_name == "edge":
-                self.driver = self._create_edge_driver()
+            # Check if BrowserStack credentials are available
+            if USERNAME and ACCESS_KEY:
+                log_info("BrowserStack credentials found, using BrowserStack Remote WebDriver")
+                self.driver = self._create_browserstack_driver()
             else:
-                raise ValueError(f"Unsupported browser: {self.browser_name}")
+                log_info("No BrowserStack credentials, using local WebDriver")
+                if self.browser_name == "chrome":
+                    self.driver = self._create_chrome_driver()
+                elif self.browser_name == "firefox":
+                    self.driver = self._create_firefox_driver()
+                elif self.browser_name == "edge":
+                    self.driver = self._create_edge_driver()
+                else:
+                    raise ValueError(f"Unsupported browser: {self.browser_name}")
             
             # Set timeouts
             self.driver.set_page_load_timeout(config.PAGE_LOAD_TIMEOUT)
@@ -122,6 +140,27 @@ class ElPaisScraper:
         
         service = EdgeService(EdgeChromiumDriverManager().install())
         return webdriver.Edge(service=service, options=options)
+    
+    def _create_browserstack_driver(self) -> webdriver.Remote:
+        """Create BrowserStack Remote WebDriver."""
+        options = webdriver.ChromeOptions()
+        options.set_capability("browserName", "Chrome")
+        options.set_capability("browserVersion", "latest")
+        options.set_capability("bstack:options", {
+            "os": "Windows",
+            "osVersion": "11",
+            "projectName": "BrowserStack Assignment",
+            "buildName": "El Pais Selenium Build",
+            "sessionName": "Spanish News Scrape"
+        })
+        
+        driver = webdriver.Remote(
+            command_executor=f"https://{USERNAME}:{ACCESS_KEY}@hub.browserstack.com/wd/hub",
+            options=options
+        )
+        
+        log_info("BrowserStack Remote WebDriver created successfully")
+        return driver
     
     def navigate_to_opinion(self) -> bool:
         """
